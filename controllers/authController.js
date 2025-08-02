@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const generateEmail = require('../assets/verfifcation_email');
 const { Resend } = require('resend');
+const { isValidEmail, isStrongPassword } = require('../assets/validators');
 
 const login = async (req, res) => {
   try {
@@ -14,8 +15,7 @@ const login = async (req, res) => {
 
     email = email.trim().toLowerCase();
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({ message: 'Hibás email formátum' });
     }
 
@@ -55,13 +55,11 @@ const register = async (req, res) => {
 
     email = email.trim().toLowerCase();
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({ message: 'Hibás email formátum' });
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-    if (!passwordRegex.test(password)) {
+    if (!isStrongPassword(password)) {
       return res.status(400).json({
         message: 'A jelszónak tartalmaznia kell kisbetűt, nagybetűt, számot és speciális karaktert (minimum 8 karakter)',
       });
@@ -78,19 +76,23 @@ const register = async (req, res) => {
 
     // email verification
     const activationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const activationUrl = `${process.env.FRONTEND_URL}/api/auth/verify?token=${activationToken}`;
-    const text = generateEmail(activationUrl);
+    const activationUrl = `${process.env.BACKEND_URL}/api/auth/verify?token=${activationToken}`;
+    const html = generateEmail(activationUrl);
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     if (!process.env.RESEND_API_KEY || !process.env.RESEND_DOMAIN) return res.status(500).json({ message: 'Szerverhiba, email kiküldés sikertelen' });
 
-    await resend.emails.send({
+    const emailData = await resend.emails.send({
       from: process.env.RESEND_DOMAIN,
       to: email,
       subject: 'Áfonyapp regisztráció megerősítése',
-      text: text,
+      html: html,
     });
+    if (!emailData || emailData.error) {
+      return res.status(500).json({ message: 'Email küldése sikertelen' });
+    }
 
+    console.log('Email sent:', emailData);
     // store pass
     const salt = await bcrypt.genSalt(10);
     const safePassword = await bcrypt.hash(password, salt);
@@ -127,6 +129,12 @@ const verify = async (req, res) => {
     // redirect frontendre:
     return res.redirect(`${process.env.FRONTEND_URL}/activated`);
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'A hitelesítő link lejárt' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ message: 'Érvénytelen token' });
+    }
     console.error('Activation err: ', error);
     return res.status(400).json({ message: 'Szerverhiba (verify)' })
   }

@@ -1,20 +1,29 @@
 const express = require('express');
 const cors = require('cors');
+const checkEnvVars = require('./assets/check_env');
 
 const authRouter = require('./routes/auth');
 const healthCheck = require('./routes/health');
 
-require('dotenv').config();
+try {
+  require('dotenv').config();
 
-const app = express();
+  checkEnvVars(process.env.NODE_ENV === 'production');
 
-app.use(cors());
-app.use(express.json());
+  const app = express();
 
-app.use('/api/health', healthCheck);
-app.use('/api/auth', authRouter);
+  app.use(cors());
+  app.use(express.json());
 
-const PORT = Number(process.env.PORT) || 6000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API running on port ${PORT}`)
-});
+  app.use('/api/health', healthCheck);
+  app.use('/api/auth', authRouter);
+
+  const PORT = Number(process.env.PORT) || 6000;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API running on port ${PORT}`)
+  });
+} catch (error) {
+  console.error('App startup failed:', error.message);
+  process.exit(1); // kézzel kiléphetsz, ha akarod
+}
+

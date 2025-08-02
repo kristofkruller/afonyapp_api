@@ -4,7 +4,7 @@ const generateEmail = (activationUrl) => {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <link rel="icon" type="image/svg+xml" href="https:cdn.jsdelivr.net/gh/kristofkruller/afonyapp_ui@main/public/afi_icon_removebg.png" />
+      <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/kristofkruller/afonyapp_ui@main/public/afi_icon_removebg.png" />
       <title>Fiók aktiválása</title>
     </head>
     <body style="margin:0; padding:0; background-color:#f4f4f7; font-family:Arial, sans-serif; color:#333;">
@@ -14,7 +14,7 @@ const generateEmail = (activationUrl) => {
             <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
               <tr>
                 <td align="center" style="padding:40px 0 20px 0;">
-                  <img src="https:cdn.jsdelivr.net/gh/kristofkruller/afonyapp_ui@main/public/logo_removebg.png" alt="App logó" width="120" style="margin-bottom: 20px;" />
+                  <img src="https://cdn.jsdelivr.net/gh/kristofkruller/afonyapp_ui@main/public/logo_removebg.png" alt="App logó" width="120" style="margin-bottom: 20px;" />
                   <h2 style="color:#2d3748; margin:0;">Üdvözlünk!</h2>
                 </td>
               </tr>
