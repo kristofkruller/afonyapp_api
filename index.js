@@ -12,7 +12,12 @@ try {
 
   const app = express();
 
-  app.use(cors());
+  app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
   app.use(express.json());
 
   app.use('/api/health', healthCheck);
@@ -24,6 +29,6 @@ try {
   });
 } catch (error) {
   console.error('App startup failed:', error.message);
-  process.exit(1); // kézzel kiléphetsz, ha akarod
+  process.exit(1);
 }
 

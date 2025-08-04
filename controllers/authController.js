@@ -101,8 +101,7 @@ const register = async (req, res) => {
       'INSERT INTO afonyapp.users (email, password) VALUES ($1, $2)',
       [email, safePassword]
     );
-
-    return res.status(201).json({ status: 'Sikeres regisztráció, ellenőrizd az emailed' });
+    return res.status(201).end(); // Sikeres regisztráció, ellenőrizd az emailed
   } catch (error) {
     console.error('Register error:', error);
     return res.status(500).json({ message: 'Szerverhiba (register)' });
