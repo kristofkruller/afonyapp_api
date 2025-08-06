@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS afonyapp.users(
   "password" TEXT NOT NULL,
   cdate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "type" VARCHAR(10) NOT NULL DEFAULT 'user',
-  validated BOOLEAN NOT NULL DEFAULT false
+  validated BOOLEAN NOT NULL DEFAULT false,
+  nick TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS afonyapp.amount_options(

@@ -34,9 +34,10 @@ const login = async (req, res) => {
       id: u.id,
       email: u.email,
       type: u.type,
+      nick: u.nick,
     }
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
     return res.json({ token });
 
   } catch (error) {
@@ -138,9 +139,53 @@ const verify = async (req, res) => {
     return res.status(400).json({ message: 'Szerverhiba (verify)' })
   }
 };
+const updateUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    // ha verify sikeres → token nem járt le
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if ((typeof decoded !== 'object') || !decoded) {
+      return res.status(400).json({ message: 'Érvénytelen token' });
+    }
+    if (!decoded.id) {
+      return res.status(400).json({ message: 'Hiányzó felhasználói azonosító a tokenből' });
+    }
+    const nick = req.body.nick.trim();
+    const nickRegex = /^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ0-9]{3,24}$/;
 
+    if ((typeof nick !== 'string') || !nick || !nickRegex.test(nick)) {
+      return res.status(400).json({ message: 'A becenevet nem tudtuk megfelelően feldolgozni, kérlek próbálkozz ismét!' });
+    }
+    const result = await pool.query('UPDATE afonyapp.users SET nick = $1 WHERE id = $2', [nick, decoded.id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Felhasználó nem található' });
+    }
+
+    const reToken = jwt.sign(
+      {
+        id: decoded.id,
+        email: decoded.email,
+        type: decoded.type,
+        nick: nick,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "3h" }
+    );
+    return res.json({ token: reToken });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'A hitelesítő link lejárt' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ message: 'Érvénytelen token' });
+    }
+    console.error('updateUser err: ', error);
+    return res.status(400).json({ message: 'Szerverhiba (updateUser)' })
+  }
+}
 module.exports = {
   login,
   register,
   verify,
+  updateUser,
 };
