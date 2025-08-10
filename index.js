@@ -4,6 +4,7 @@ const checkEnvVars = require('./assets/check_env');
 
 const authRouter = require('./routes/auth');
 const healthCheck = require('./routes/health');
+const ordersRouter = require('./routes/orders');
 
 try {
   require('dotenv').config();
@@ -22,6 +23,7 @@ try {
 
   app.use('/api/health', healthCheck);
   app.use('/api/auth', authRouter);
+  app.use('/api', ordersRouter);
 
   const PORT = Number(process.env.PORT) || 6000;
   app.listen(PORT, '0.0.0.0', () => {

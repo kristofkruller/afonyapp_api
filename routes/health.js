@@ -3,7 +3,7 @@ const express = require('express');
 const healthCheck = express.Router();
 
 const isUp = async (_, res) => {
-  return res.status(200).json({health: 'Up'});
+  return res.json({health: 'Up'});
 }
 
 healthCheck.get('/', isUp);

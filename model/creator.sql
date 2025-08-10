@@ -1,3 +1,5 @@
+-- 🌻 INIT DB
+
 CREATE SCHEMA IF NOT EXISTS afonyapp;
 
 -- Az alábbi indexek automatikusan létrejönnek UNIQUE constraint miatt, nem kell kézzel létrehozni:
@@ -66,13 +68,6 @@ CREATE TABLE IF NOT EXISTS afonyapp.orders (
   cdate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 
--- 🧪 Tesztfelhasználók beszúrása
--- INSERT INTO afonyapp.users (email, password, type, validated)
--- VALUES 
---   ('testuser1@example.com', '$2b$10$OmuHZM3ZAkRLU8zOzzqzOeMn/Yujgo9a5E8uRW9I3EvnDNF5hd0bq', 'user', true),
---   ('testuser2@example.com', '$2b$10$xtPPPaEnRUsJSg.3YLUsoOpP7fObZ2WozNOMgYnvJ90T0xduZFtKu', 'user', true),
---   ('admin@example.com',     '$2b$10$2shP2vwUJqulBIMLVgdRyuzKPktx7fXHOV4mxUFknmN8qxHTPL9ve', 'admin', true);
-
 -- 🧪 Minden típus létrejött-e
 -- SELECT n.nspname AS schema, t.typname AS enum_type, e.enumlabel AS value
 -- FROM pg_type t
@@ -80,3 +75,46 @@ CREATE TABLE IF NOT EXISTS afonyapp.orders (
 -- JOIN pg_namespace n ON n.oid = t.typnamespace
 -- WHERE n.nspname = 'afonyapp'
 -- ORDER BY enum_type, e.enumsortorder;
+
+-- 🌱 SEEDING 
+-- 🫘 Insert sorrend: users → amount_options → delivery_options → crop → orders, így minden foreign key létező rekordra mutat.
+
+-- 🌱 Tesztfelhasználók beszúrása
+INSERT INTO afonyapp.users (email, "password", "type", validated, nick)
+VALUES
+  ('user1@example.com',  '$2b$10$OmuHZM3ZAkRLU8zOzzqzOeMn/Yujgo9a5E8uRW9I3EvnDNF5hd0bq', 'user',  true,  'User One'),
+  ('user2@example.com',  '$2b$10$xtPPPaEnRUsJSg.3YLUsoOpP7fObZ2WozNOMgYnvJ90T0xduZFtKu', 'user',  true,  'User Two'),
+  ('admin@example.com',  '$2b$10$2shP2vwUJqulBIMLVgdRyuzKPktx7fXHOV4mxUFknmN8qxHTPL9ve', 'admin', true,  'Admin');
+
+-- 🌱 Amount options (kg, ár, érvényes-e)
+INSERT INTO afonyapp.amount_options (kg, cost, isvalid)
+VALUES
+  (1,  1500.00, true),
+  (2,  2800.00, true),
+  (5,  6500.00, true),
+  (10, 12000.00, false);
+
+-- 🌱 Delivery options (város, ár, érvényes-e)
+INSERT INTO afonyapp.delivery_options (city, cost, isvalid)
+VALUES
+  ('Budapest',    2500.00, true),
+  ('Debrecen',    3000.00, true),
+  ('Szeged',      2800.00, true),
+  ('Pécs',        3500.00, false);
+
+-- 🌱 Crop (időszak, helyszín, készlet)
+INSERT INTO afonyapp.crop (available_start, available_end, available_note, "location", amount)
+VALUES
+  ('2025-08-01', '2025-08-15', 'Korai szüret, kiváló minőség', 'Szekszárd', 200),
+  ('2025-08-16', '2025-08-31', 'Másodszüret, magas cukortartalom', 'Villány', 300),
+  ('2025-09-01', '2025-09-15', 'Utószüret, különleges aroma', 'Eger', 150);
+
+-- 🌱 Orders (összekapcsolt táblák alapján)
+INSERT INTO afonyapp.orders (
+  cropid, deliverytype, deliverycity, deliveryaddress,
+  email, "name", telephone, amountid, "status"
+) VALUES
+  (1, 'Személyes átvétel', 1, 'Kossuth Lajos utca 12.', 'user1@example.com', 'Kiss Péter', '+36201234567', 2, 'Beérkezett'),
+  (2, 'Házhozszállítás',  2, 'Fő tér 5.',              'user2@example.com', 'Nagy Anna',  '+36203334455', 3, 'Értesített'),
+  (3, 'Házhozszállítás',  3, 'Petőfi Sándor utca 8.',  'user1@example.com', 'Tóth Gábor', '+36209998877', 1, 'Megerősített');
+
