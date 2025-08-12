@@ -1,5 +1,4 @@
 const pool = require('./pool');
-const jwt = require('jsonwebtoken');
 
 const orders = async (req, res) => {
   try {

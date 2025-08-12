@@ -4,6 +4,6 @@ const jwtFromHeader = require('../middleware/jwtFromHeader');
 
 const ordersRouter = express.Router();
 
-ordersRouter.post('orders', jwtFromHeader, orders);
+ordersRouter.post('/orders', jwtFromHeader, orders);
 
 module.exports = ordersRouter;
