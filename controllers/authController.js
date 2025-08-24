@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const generateEmail = require('../assets/verfifcation_email');
 const { Resend } = require('resend');
 const { isValidEmail, isStrongPassword } = require('../assets/validators');
+const refreshToken = require('../middleware/refreshToken');
 
 const login = async (req, res) => {
   try {
@@ -30,14 +31,7 @@ const login = async (req, res) => {
     const checkPass = await bcrypt.compare(password, u.password);
     if (!checkPass) return res.status(401).json({ message: 'Hibás email vagy jelszó' });
 
-    const payload = {
-      id: u.id,
-      email: u.email,
-      type: u.type,
-      nick: u.nick,
-    }
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
+    const token = refreshToken(u);
     return res.json({ token });
 
   } catch (error) {
