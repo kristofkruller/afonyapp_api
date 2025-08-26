@@ -10,6 +10,6 @@ module.exports = function refreshToken(user) {
     nick: user.nick,
   }
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
-  console.log(jwt.verify(token, process.env.JWT_SECRET));
+  // console.log(jwt.verify(token, process.env.JWT_SECRET));
   if (token) return token;
 }
