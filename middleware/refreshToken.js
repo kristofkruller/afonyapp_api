@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = function refreshToken(user) {
-  if (!user.id || !user.email || !user.type || !user.nick) throw new Error("Token sign failed due to lack of user data!");
+  if (!user.id || !user.email || !user.type) throw new Error("Token sign failed due to lack of user data!");
 
   const payload = {
     id: user.id,
