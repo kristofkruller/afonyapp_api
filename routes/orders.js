@@ -4,7 +4,7 @@ const jwtFromHeader = require('../middleware/jwtFromHeader');
 
 const ordersRouter = express.Router();
 
-ordersRouter.post('/orders', jwtFromHeader, orders);
-ordersRouter.put('/orders/status', jwtFromHeader, updateOrderStatus);
+ordersRouter.post('/', jwtFromHeader, orders);
+ordersRouter.put('/status', jwtFromHeader, updateOrderStatus);
 
 module.exports = ordersRouter;

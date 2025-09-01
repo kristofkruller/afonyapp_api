@@ -130,9 +130,10 @@ const verify = async (req, res) => {
       return res.status(400).json({ message: 'Érvénytelen token' });
     }
     console.error('Activation err: ', error);
-    return res.status(400).json({ message: 'Szerverhiba (verify)' })
+    return res.status(500).json({ message: 'Szerverhiba (verify)' })
   }
 };
+
 const updateUser = async (req, res) => {
   try {
     const nick = req.body.nick.trim();
@@ -162,12 +163,49 @@ const updateUser = async (req, res) => {
     return res.json({ token: reToken });
   } catch (error) {
     console.error('updateUser err: ', error);
-    return res.status(400).json({ message: 'Szerverhiba (updateUser)' })
+    return res.status(500).json({ message: 'Szerverhiba (updateUser)' })
   }
 }
+
+const updatePass = async (req, res) => {
+  try {
+    let { originalPassWord, newPassWord } = req.body;
+
+    if (!originalPassWord || !newPassWord) {
+      return res.status(400).json({ message: 'Jelszó kötelező' });
+    }
+
+    const { id } = req.user;
+    const uPass = await pool.query(`SELECT password from afonyapp.users WHERE id = $1`, [id]);
+
+    if (uPass.rowCount < 1) throw new Error("Jelszó kinyerése nem sikerült");
+
+    const checkPass = await bcrypt.compare(originalPassWord, uPass.rows[0]['password']);
+
+    if (!checkPass) return res.status(401).json({ message: 'Hibás jelszó' });
+
+    // store pass
+    const salt = await bcrypt.genSalt(10);
+    const safePassword = await bcrypt.hash(newPassWord, salt);
+
+    const result = await pool.query('UPDATE afonyapp.users SET password = $2 WHERE id = $1', [id, safePassword]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Jelszó frissítése nem sikerült' });
+    }
+
+    return res.sendStatus(200);
+
+  } catch (error) {
+    console.error('updatePass err: ', error);
+    return res.status(500).json({ message: 'Szerverhiba (updateUser)' })
+  }
+}
+
 module.exports = {
   login,
   register,
   verify,
   updateUser,
+  updatePass,
 };

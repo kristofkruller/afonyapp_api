@@ -23,7 +23,7 @@ try {
 
   app.use('/api/health', healthCheck);
   app.use('/api/auth', authRouter);
-  app.use('/api', ordersRouter);
+  app.use('/api/orders', ordersRouter);
 
   const PORT = Number(process.env.PORT) || 6000;
   app.listen(PORT, '0.0.0.0', () => {
