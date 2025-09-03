@@ -1,5 +1,5 @@
 const jwtFromHeader = require('../middleware/jwtFromHeader');
-const { login, register, verify, updateUser, updatePass } = require('../controllers/authController');
+const { login, register, verify, updateUser, updatePass, deleteUser } = require('../controllers/authController');
 const express = require('express');
 const authRouter = express.Router();
 
@@ -8,5 +8,6 @@ authRouter.post('/register', register);
 authRouter.get('/verify', verify);
 authRouter.put('/me', jwtFromHeader, updateUser);
 authRouter.put('/pass', jwtFromHeader, updatePass);
+authRouter.delete('/', jwtFromHeader, deleteUser);
 
 module.exports = authRouter;

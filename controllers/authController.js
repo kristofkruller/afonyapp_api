@@ -202,10 +202,38 @@ const updatePass = async (req, res) => {
   }
 }
 
+const deleteUser = async (req, res) => {
+  try {
+    const { id, email } = req.user;
+    const delUser = await pool.query(`DELETE afonyapp.users WHERE id = $1`, [id]);
+    if (delUser.rowCount < 1) throw new Error("Felhasználó törlése meghíusult");
+    const updateOrders = await pool.query(`
+      with owner as (
+        SELECT 
+          email
+        FROM afonyapp.users
+        WHERE type = 'owner'
+        LIMIT 1
+      )
+      UPDATE afonyapp.orders o
+      SET 
+        email = owner.email,
+        status = 'Lemondott'
+      FROM owner
+      WHERE o.email = $1
+    `, [email]);
+    if (updateOrders.rowCount < 1) throw new Error("Rendelések frissítése sikertelen");
+  } catch (error) {
+    console.error('delUser err: ', error);
+    return res.status(500).json({ message: 'Szerverhiba (delUser)' })
+  }
+}
+
 module.exports = {
   login,
   register,
   verify,
   updateUser,
   updatePass,
+  deleteUser,
 };
