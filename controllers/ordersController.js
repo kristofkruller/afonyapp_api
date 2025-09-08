@@ -9,7 +9,7 @@ const orders = async (req, res) => {
         select
           ao.id as id,
           ao.kg as amount,
-          ao."cost" as cost
+          ROUND(ao."cost",0) as cost
         from afonyapp.amount_options ao
         where ao.isvalid = true 
       )
