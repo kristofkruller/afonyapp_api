@@ -59,7 +59,35 @@ const updateOrderStatus = async (req, res) => {
   }
 }
 
+const registerOrderOptions = async (_, res) => {
+  try {
+    const amountOptions = await pool.query(`
+      SELECT
+        id, kg, cost
+      FROM afonyapp.amount_options
+      WHERE isvalid = true
+    `);
+    if (amountOptions.rowCount === 0) {
+      return res.status(404).json({ message: 'Mennyiségi adatok nem találhatóak' });
+    }
+    const deliveryOptions = await pool.query(`
+      SELECT
+        id, city, cost
+      FROM afonyapp.delivery_options
+      WHERE isvalid = true
+    `);
+    if (deliveryOptions.rowCount === 0) {
+      return res.status(404).json({ message: 'Kiszállítási adatok nem találhatóak' });
+    }
+    return res.status(200).json({ amount_options: amountOptions.rows, delivery_options: deliveryOptions.rows });
+  } catch (error) {
+    console.error('get orderoptions err: ', error);
+    return res.status(500).json({ message: 'Szerverhiba (registerOrderOptions)' })
+  }  
+}
+
 module.exports = {
   orders,
   updateOrderStatus,
+  registerOrderOptions,
 };
