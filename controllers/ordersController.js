@@ -30,7 +30,7 @@ const orders = async (req, res) => {
 
     // refresh
     const token = refreshToken(decoded);
-    
+
     // console.debug(orders.rows);
     return res.json({ orders: orders.rows, token: token });
 
@@ -59,11 +59,11 @@ const updateOrderStatus = async (req, res) => {
   }
 }
 
-const registerOrderOptions = async (_, res) => {
+const getOrderOptions = async (_, res) => {
   try {
     const amountOptions = await pool.query(`
       SELECT
-        id, kg, cost
+        id, kg, ROUND(cost,0) as cost
       FROM afonyapp.amount_options
       WHERE isvalid = true
     `);
@@ -72,7 +72,7 @@ const registerOrderOptions = async (_, res) => {
     }
     const deliveryOptions = await pool.query(`
       SELECT
-        id, city, cost
+        id, city, ROUND(cost,0) as cost
       FROM afonyapp.delivery_options
       WHERE isvalid = true
     `);
@@ -82,12 +82,33 @@ const registerOrderOptions = async (_, res) => {
     return res.status(200).json({ amount_options: amountOptions.rows, delivery_options: deliveryOptions.rows });
   } catch (error) {
     console.error('get orderoptions err: ', error);
-    return res.status(500).json({ message: 'Szerverhiba (registerOrderOptions)' })
-  }  
+    return res.status(500).json({ message: 'Szerverhiba (getOrderOptions)' })
+  }
+}
+
+const registerNewOrder = async (req, res) => {
+  try {
+    const { email } = req.user;
+    const { order } = req.body;
+    const register = await pool.query(`
+      INSERT
+      INTO afonyapp.orders (cropid, deliverytype, deliverycity, deliveryaddress, email, name, telephone, amountid, status)
+      VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `, [order.cropid, order.deliverytype, order.deliveryCity, order.deliveryAddress, email, order.name, order.telephone, order.amount, order.status]);
+    if (register.rowCount === 0) {
+      return res.status(404).json({ message: 'Database transaction unsuccessful' });
+    }
+
+    return res.status(200).json({ message: "Új rendelés sikeresen rögzítésre került" });
+  } catch (error) {
+    console.error('registerNewOrder err: ', error);
+    return res.status(500).json({ message: 'Szerverhiba (registerNewOrder)' })
+  }
 }
 
 module.exports = {
   orders,
   updateOrderStatus,
-  registerOrderOptions,
+  getOrderOptions,
+  registerNewOrder,
 };

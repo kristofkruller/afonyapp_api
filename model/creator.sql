@@ -97,6 +97,7 @@ VALUES
 -- 🌱 Delivery options (város, ár, érvényes-e)
 INSERT INTO afonyapp.delivery_options (city, cost, isvalid)
 VALUES
+  ('Házhozszállítás',   0, true),
   ('Budapest',    2500.00, true),
   ('Debrecen',    3000.00, true),
   ('Szeged',      2800.00, true),
@@ -105,6 +106,7 @@ VALUES
 -- 🌱 Crop (időszak, helyszín, készlet)
 INSERT INTO afonyapp.crop (available_start, available_end, available_note, "location", amount)
 VALUES
+  ('2025-01-01', '2025-01-01', 'Regisztrált új rendelés', 'Csemő', 0),
   ('2025-08-01', '2025-08-15', 'Korai szüret, kiváló minőség', 'Szekszárd', 200),
   ('2025-08-16', '2025-08-31', 'Másodszüret, magas cukortartalom', 'Villány', 300),
   ('2025-09-01', '2025-09-15', 'Utószüret, különleges aroma', 'Eger', 150);
