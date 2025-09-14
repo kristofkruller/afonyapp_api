@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS afonyapp.orders (
   amountid INTEGER NOT NULL REFERENCES afonyapp.amount_options(id),
   "status" afonyapp.order_status NOT NULL,
   cdate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 -- 🧪 Minden típus létrejött-e
 -- SELECT n.nspname AS schema, t.typname AS enum_type, e.enumlabel AS value
@@ -82,9 +82,9 @@ CREATE TABLE IF NOT EXISTS afonyapp.orders (
 -- 🌱 Tesztfelhasználók beszúrása
 INSERT INTO afonyapp.users (email, "password", "type", validated, nick)
 VALUES
-  ('user1@example.com',  '$2b$10$OmuHZM3ZAkRLU8zOzzqzOeMn/Yujgo9a5E8uRW9I3EvnDNF5hd0bq', 'user',  true,  'User One'),
-  ('user2@example.com',  '$2b$10$xtPPPaEnRUsJSg.3YLUsoOpP7fObZ2WozNOMgYnvJ90T0xduZFtKu', 'user',  true,  'User Two'),
-  ('admin@example.com',  '$2b$10$2shP2vwUJqulBIMLVgdRyuzKPktx7fXHOV4mxUFknmN8qxHTPL9ve', 'admin', true,  'Admin');
+  ('user1@example.com',  '$2b$10$TbVARhb6oTe2qi4ypA6pGurNb9ODoTD0uePm8w3tlxRosk44zeeme', 'user',  true,  'User One'),
+  ('admin@example.com',  '$2b$10$TbVARhb6oTe2qi4ypA6pGurNb9ODoTD0uePm8w3tlxRosk44zeeme', 'admin', true,  'Admin'),
+  ('owner@example.com',  '$2b$10$TbVARhb6oTe2qi4ypA6pGurNb9ODoTD0uePm8w3tlxRosk44zeeme', 'owner',  true,  'Owner');
 
 -- 🌱 Amount options (kg, ár, érvényes-e)
 INSERT INTO afonyapp.amount_options (kg, cost, isvalid)
@@ -97,7 +97,7 @@ VALUES
 -- 🌱 Delivery options (város, ár, érvényes-e)
 INSERT INTO afonyapp.delivery_options (city, cost, isvalid)
 VALUES
-  ('Házhozszállítás',   0, true),
+  ('Személyes átvétel',   0, true),
   ('Budapest',    2500.00, true),
   ('Debrecen',    3000.00, true),
   ('Szeged',      2800.00, true),
@@ -116,7 +116,7 @@ INSERT INTO afonyapp.orders (
   cropid, deliverytype, deliverycity, deliveryaddress,
   email, "name", telephone, amountid, "status"
 ) VALUES
-  (1, 'Személyes átvétel', 1, 'Kossuth Lajos utca 12.', 'user1@example.com', 'Kiss Péter', '+36201234567', 2, 'Beérkezett'),
-  (2, 'Házhozszállítás',  2, 'Fő tér 5.',              'user2@example.com', 'Nagy Anna',  '+36203334455', 3, 'Értesített'),
-  (3, 'Házhozszállítás',  3, 'Petőfi Sándor utca 8.',  'user1@example.com', 'Tóth Gábor', '+36209998877', 1, 'Megerősített');
+  (1, 'Személyes átvétel', 1, '', 'user1@example.com', 'Kiss Péter', '+36201234567', 2, 'Beérkezett'),
+  (2, 'Házhozszállítás',  2, 'Fő tér 5.',              'admin@example.com', 'Nagy Anna',  '+36203334455', 3, 'Értesített'),
+  (3, 'Házhozszállítás',  3, 'Petőfi Sándor utca 8.',  'owner@example.com', 'Tóth Gábor', '+36209998877', 1, 'Megerősített');
 

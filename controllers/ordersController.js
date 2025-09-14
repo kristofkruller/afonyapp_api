@@ -74,7 +74,7 @@ const getOrderOptions = async (_, res) => {
       SELECT
         id, city, ROUND(cost,0) as cost
       FROM afonyapp.delivery_options
-      WHERE isvalid = true
+      WHERE isvalid = true AND id > 1
     `);
     if (deliveryOptions.rowCount === 0) {
       return res.status(404).json({ message: 'Kiszállítási adatok nem találhatóak' });
